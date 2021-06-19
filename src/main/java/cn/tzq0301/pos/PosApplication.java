@@ -1,19 +1,21 @@
 package cn.tzq0301.pos;
 
 import cn.tzq0301.pos.ui.PaymentUI;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.Scanner;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
 public class PosApplication implements CommandLineRunner {
-    private final Scanner in = new Scanner(System.in);
-    private final PaymentUI ui;
+    private final PaymentUI paymentUI;
 
-    public PosApplication(PaymentUI ui) {
-        this.ui = ui;
+    @Autowired
+    public PosApplication(@Qualifier("paymentConsoleUI") PaymentUI paymentUI) {
+    // public PosApplication(@Qualifier("paymentGUI") PaymentUI paymentUI) {
+        this.paymentUI = paymentUI;
     }
 
     public static void main(String[] args) {
@@ -21,7 +23,7 @@ public class PosApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         init();
         while (setup()) {
             tacklePayment();
@@ -29,14 +31,14 @@ public class PosApplication implements CommandLineRunner {
     }
 
     private void init() {
-        ui.init();
+        paymentUI.init();
     }
 
     private boolean setup() {
-        return ui.setup(in);
+        return paymentUI.setup();
     }
 
     private void tacklePayment() {
-        ui.tacklePayment(in);
+        paymentUI.tackle();
     }
 }

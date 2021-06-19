@@ -2,7 +2,7 @@ package cn.tzq0301.pos.service.impl;
 
 import cn.tzq0301.pos.entity.Good;
 import cn.tzq0301.pos.entity.Payment;
-import cn.tzq0301.pos.mapper.GoodMapper;
+import cn.tzq0301.pos.mapper.PaymentMapper;
 import cn.tzq0301.pos.service.PaymentService;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,12 @@ import java.util.Optional;
  */
 @Service
 public class PaymentServiceImpl implements PaymentService {
+    private final PaymentMapper paymentMapper;
+
+    public PaymentServiceImpl(PaymentMapper paymentMapper) {
+        this.paymentMapper = paymentMapper;
+    }
+
     @Override
     public void addGood(Payment payment, Good good, int amount) {
         payment.addGood(good, amount);
@@ -38,6 +44,6 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void finishPayment(Payment payment) {
         payment.finishPayment();
-        // TODO: 使用数据库进行数据（Payment）持久化操作
+        paymentMapper.savePayment(payment);
     }
 }

@@ -5,6 +5,8 @@ import cn.tzq0301.pos.mapper.GoodMapper;
 import cn.tzq0301.pos.service.GoodService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author TZQ
  * @Description TODO
@@ -20,5 +22,10 @@ public class GoodServiceImpl implements GoodService {
     @Override
     public Good getGoodById(String id) {
         return goodMapper.getGoodById(id);
+    }
+
+    @Override
+    public List<Good> listAllGoods() {
+        return goodMapper.listAllGoods();
     }
 }

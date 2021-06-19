@@ -6,6 +6,11 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
  * @author TZQ
  * @Description TODO
@@ -23,5 +28,16 @@ public class GoodMapperImpl implements GoodMapper {
     @Override
     public Good getGoodById(String id) {
         return JSONObject.parseObject(redisTemplate.opsForValue().get(GOOD_PREFIX + id), Good.class);
+    }
+
+    @Override
+    public List<Good> listAllGoods() {
+        return Optional.ofNullable(redisTemplate.opsForList()
+                .range("good", 0, Optional.ofNullable(
+                        redisTemplate.opsForList().size("good")).orElse(0L)))
+                .orElse(new ArrayList<>())
+                .stream()
+                .map(good -> JSONObject.parseObject(good, Good.class))
+                .collect(Collectors.toList());
     }
 }

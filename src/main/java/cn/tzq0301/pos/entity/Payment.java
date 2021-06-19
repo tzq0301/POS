@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +14,6 @@ import java.util.Map;
  */
 public class Payment implements Serializable {
     private static final long serialVersionUID = -7720324870937655702L;
-
-    private Long id;
 
     private final Map<Good, Integer> goods;
 
@@ -31,9 +30,10 @@ public class Payment implements Serializable {
         total = total.add(good.getPrice().multiply(new BigDecimal(num)));
     }
 
-    public void removeGood(Good good) {
-        goods.remove(good);
-        total = total.subtract(good.getPrice());
+    public void removeGood(Good good, int num) {
+        // FIXME
+        // goods.remove(good);
+        // total = total.subtract(good.getPrice());
     }
 
     public void showServiceInfo() {
@@ -43,11 +43,44 @@ public class Payment implements Serializable {
                         + v + "\t\t" + k.getPrice().multiply(new BigDecimal(v))));
     }
 
+    public String getServiceInfo() {
+        StringBuilder stringBuilder = new StringBuilder("品名\t\t零售价\t\t数量\t\t金额\n");
+        goods.forEach((k, v) -> stringBuilder
+                .append(k.getName()).append("\t\t")
+                .append(k.getPrice()).append("\t\t")
+                .append(v).append("\t\t")
+                .append(k.getPrice().multiply(new BigDecimal(v))).append("\n"));
+        return stringBuilder.toString();
+    }
+
+    public String getServiceInfoHTML() {
+        StringBuilder stringBuilder = new StringBuilder("<html>");
+        goods.forEach((k, v) -> stringBuilder
+                .append(k.getName()).append("&nbsp;&nbsp;")
+                .append(k.getPrice()).append("&nbsp;&nbsp;")
+                .append(v).append("&nbsp;&nbsp;")
+                .append(k.getPrice().multiply(new BigDecimal(v))).append("<br>"));
+        stringBuilder.append("总价：").append(total.toString());
+        return stringBuilder.append("</html>").toString();
+    }
+
     public void finishPayment() {
         printReceipt();
     }
 
     public void printReceipt() {
         System.out.println("正在打印单据……");
+    }
+
+    public Map<Good, Integer> getGoods() {
+        return Collections.unmodifiableMap(goods);
+    }
+
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "goods=" + goods +
+                ", total=" + total +
+                '}';
     }
 }
