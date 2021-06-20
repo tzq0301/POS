@@ -6,16 +6,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+/**
+ * @author TZQ
+ */
 @SpringBootApplication
 public class PosApplication implements CommandLineRunner {
     private final PaymentUI paymentUI;
 
     @Autowired
-    public PosApplication(@Qualifier("paymentConsoleUI") PaymentUI paymentUI) {
-    // public PosApplication(@Qualifier("paymentGUI") PaymentUI paymentUI) {
-        this.paymentUI = paymentUI;
+    // public PosApplication(@Qualifier("paymentConsoleUI") PaymentUI paymentUi) {
+    public PosApplication(@Qualifier("paymentGUI") PaymentUI paymentUi) {
+        this.paymentUI = paymentUi;
     }
 
     public static void main(String[] args) {

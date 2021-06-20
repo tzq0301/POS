@@ -2,6 +2,8 @@ package cn.tzq0301.pos.ui.impl;
 
 import cn.tzq0301.pos.entity.Good;
 import cn.tzq0301.pos.entity.Payment;
+import cn.tzq0301.pos.entity.adaptor.PaymentPrinter;
+import cn.tzq0301.pos.entity.adaptor.PaymentPrinterAdapter;
 import cn.tzq0301.pos.service.GoodService;
 import cn.tzq0301.pos.service.PaymentService;
 import cn.tzq0301.pos.ui.PaymentUI;
@@ -91,6 +93,25 @@ public class PaymentConsoleUI implements PaymentUI {
                 System.out.println("> 找零：" + paymentService.getChange(payment, actual));
 
                 paymentService.finishPayment(payment);
+
+                System.out.println("> 请选择订单样式：HTML (H) / Plain Text (P)：");
+                final String style = in.next();
+                PaymentPrinter paymentPrinter = new PaymentPrinterAdapter(payment);
+                switch (style) {
+                    case "h":
+                    case "H":
+                        System.out.println(paymentPrinter.printHtml());
+                        break;
+                    case "p":
+                    case "P":
+                        System.out.println(paymentPrinter.printPlainText());
+                        break;
+                    default:
+                        System.out.println("> 输入错误！默认使用 Plain Text 打印：\n");
+                        System.out.println(paymentPrinter.printPlainText());
+                        break;
+                }
+                System.out.println(); // 换行
                 return;
             } else {
                 System.out.println("> 命令错误！请重新输入！");

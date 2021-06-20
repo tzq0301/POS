@@ -2,6 +2,8 @@ package cn.tzq0301.pos.service.impl;
 
 import cn.tzq0301.pos.entity.Good;
 import cn.tzq0301.pos.entity.Payment;
+import cn.tzq0301.pos.entity.adaptor.PaymentPrinter;
+import cn.tzq0301.pos.entity.adaptor.PaymentPrinterAdapter;
 import cn.tzq0301.pos.mapper.PaymentMapper;
 import cn.tzq0301.pos.service.PaymentService;
 import org.springframework.stereotype.Service;

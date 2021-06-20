@@ -1,6 +1,7 @@
 package cn.tzq0301.pos.entity;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -10,12 +11,15 @@ import java.util.Map;
 
 /**
  * @author TZQ
- * @Description TODO
+ * @Description 订单
  */
+@Slf4j
 public class Payment implements Serializable {
     private static final long serialVersionUID = -7720324870937655702L;
 
     private final Map<Good, Integer> goods;
+
+    private static final String DOUBLE_SPACE = "&nbsp;&nbsp;";
 
     @Getter
     private BigDecimal total;
@@ -53,12 +57,12 @@ public class Payment implements Serializable {
         return stringBuilder.toString();
     }
 
-    public String getServiceInfoHTML() {
+    public String getServiceInfoHtml() {
         StringBuilder stringBuilder = new StringBuilder("<html>");
         goods.forEach((k, v) -> stringBuilder
-                .append(k.getName()).append("&nbsp;&nbsp;")
-                .append(k.getPrice()).append("&nbsp;&nbsp;")
-                .append(v).append("&nbsp;&nbsp;")
+                .append(k.getName()).append(DOUBLE_SPACE)
+                .append(k.getPrice()).append(DOUBLE_SPACE)
+                .append(v).append(DOUBLE_SPACE)
                 .append(k.getPrice().multiply(new BigDecimal(v))).append("<br>"));
         stringBuilder.append("总价：").append(total.toString());
         return stringBuilder.append("</html>").toString();

@@ -52,14 +52,6 @@ public class RedisGoodTest {
 
     @Test
     void test4() {
-        // final List<String> goods = redisTemplate.opsForList().range("good", 0,
-        //         Optional.ofNullable(redisTemplate.opsForList().size("good")).orElse(0L));
-        // if (goods != null) {
-        //     goods.stream()
-        //             .filter(Objects::nonNull)
-        //             .map(good -> JSONObject.parseObject(good, Good.class))
-        //             .forEach(System.out::println);
-        // }
         goodMapper.listAllGoods().forEach(System.out::println);
     }
 }

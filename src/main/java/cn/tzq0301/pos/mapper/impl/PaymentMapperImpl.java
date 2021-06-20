@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author TZQ
- * @Description TODO
+ * @Description the implementation of {@link cn.tzq0301.pos.mapper.PaymentMapper}
  */
 @Repository
 public class PaymentMapperImpl implements PaymentMapper {

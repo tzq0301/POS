@@ -2,6 +2,7 @@ package cn.tzq0301.pos.mapper.impl;
 
 import cn.tzq0301.pos.entity.Good;
 import cn.tzq0301.pos.mapper.GoodMapper;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author TZQ
- * @Description TODO
+ * @Description the implementation of GoodMapper
  */
 @Repository
 public class GoodMapperImpl implements GoodMapper {
@@ -27,7 +28,7 @@ public class GoodMapperImpl implements GoodMapper {
 
     @Override
     public Good getGoodById(String id) {
-        return JSONObject.parseObject(redisTemplate.opsForValue().get(GOOD_PREFIX + id), Good.class);
+        return JSON.parseObject(redisTemplate.opsForValue().get(GOOD_PREFIX + id), Good.class);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class GoodMapperImpl implements GoodMapper {
                         redisTemplate.opsForList().size("good")).orElse(0L)))
                 .orElse(new ArrayList<>())
                 .stream()
-                .map(good -> JSONObject.parseObject(good, Good.class))
+                .map(good -> JSON.parseObject(good, Good.class))
                 .collect(Collectors.toList());
     }
 }

@@ -2,9 +2,16 @@ package cn.tzq0301.pos.ui.impl;
 
 import cn.tzq0301.pos.entity.Good;
 import cn.tzq0301.pos.entity.Payment;
+import cn.tzq0301.pos.entity.adaptor.PaymentPrinter;
+import cn.tzq0301.pos.entity.adaptor.PaymentPrinterAdapter;
 import cn.tzq0301.pos.service.GoodService;
 import cn.tzq0301.pos.service.PaymentService;
 import cn.tzq0301.pos.ui.PaymentUI;
+import cn.tzq0301.pos.ui.gui.GuiState;
+import cn.tzq0301.pos.ui.gui.impl.GuiInitState;
+import cn.tzq0301.pos.ui.gui.impl.GuiSetupState;
+import cn.tzq0301.pos.ui.gui.impl.GuiTackleState;
+import jdk.nashorn.internal.scripts.JO;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -15,7 +22,7 @@ import java.util.concurrent.Semaphore;
 
 /**
  * @author TZQ
- * @Description TODO
+ * @Description GUI for payment
  */
 @Component("paymentGUI")
 public class PaymentGUI implements PaymentUI {
@@ -29,15 +36,23 @@ public class PaymentGUI implements PaymentUI {
 
     private Payment payment;
 
+    private GuiState guiState;
+    private final GuiState initState;
+    private final GuiState setupState;
+    private final GuiState tackleState;
+
     public PaymentGUI(PaymentService paymentService, GoodService goodService) {
         this.paymentService = paymentService;
         this.goodService = goodService;
 
-        this.semaphore = new Semaphore(2);
-
         operationsFrame = new JFrame("请选择操作");
         operationsFrame.setSize(300, 400);
         operationsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        this.semaphore = new Semaphore(2);
+        this.initState = new GuiInitState();
+        this.setupState = new GuiSetupState(operationsFrame);
+        this.tackleState = new GuiTackleState(semaphore);
 
         paymentFrame = new JFrame("新建订单");
         paymentFrame.setSize(700, 300);
@@ -60,9 +75,9 @@ public class PaymentGUI implements PaymentUI {
             final Good good = goods.get(i);
             goodStrings[i] = good.getId() + " - " + good.getName() + " - " + good.getDescription();
         }
-        JList<String> goodJList = new JList<>(goodStrings);
+        JList<String> goodList = new JList<>(goodStrings);
         JPanel listPanel = new JPanel();
-        listPanel.add(goodJList);
+        listPanel.add(goodList);
         paymentFrame.add(listPanel, BorderLayout.WEST);
 
         JPanel operatePaymentPanel = new JPanel(new GridLayout(4, 2, 20, 10));
@@ -71,7 +86,8 @@ public class PaymentGUI implements PaymentUI {
         JLabel idLabel = new JLabel("商品ID：");
         idPanel.add(idLabel);
         JTextField idTextField = new JTextField();
-        idTextField.setColumns(30); // 设置输入框（input）的宽度
+        // 设置输入框（input）的宽度
+        idTextField.setColumns(30);
         idPanel.add(idTextField);
         operatePaymentPanel.add(idPanel);
 
@@ -79,7 +95,8 @@ public class PaymentGUI implements PaymentUI {
         JLabel numLabel = new JLabel("数量：");
         numPanel.add(numLabel);
         JTextField numTextField = new JTextField();
-        numTextField.setColumns(30); // 设置输入框（input）的宽度
+        // 设置输入框（input）的宽度
+        numTextField.setColumns(30);
         numPanel.add(numTextField);
         operatePaymentPanel.add(numPanel);
 
@@ -93,7 +110,7 @@ public class PaymentGUI implements PaymentUI {
                     Integer.parseInt(numTextField.getText()));
             idTextField.setText("");
             numTextField.setText("");
-            paymentLabel.setText(payment.getServiceInfoHTML());
+            paymentLabel.setText(payment.getServiceInfoHtml());
         });
         addPanel.add(addButton);
         JButton clearButton = new JButton("清空");
@@ -115,6 +132,23 @@ public class PaymentGUI implements PaymentUI {
                     "总价：" + payment.getTotal() + "\n"
                             + "实付：" + payInput + "\n"
                             + "找零：" + new BigDecimal(payInput).subtract(payment.getTotal()));
+            paymentLabel.setText("");
+            Object[] options = {"HTML", "纯文本"};
+            String option = String.valueOf(JOptionPane.showInputDialog(null,
+                    "请选择订单样式", "打印订单", JOptionPane.PLAIN_MESSAGE,
+                    null, options, "样式"));
+            PaymentPrinter paymentPrinter = new PaymentPrinterAdapter(payment);
+            switch (option) {
+                case "HTML":
+                    JOptionPane.showMessageDialog(null, paymentPrinter.printHtml());
+                    break;
+                case "纯文本":
+                    JOptionPane.showMessageDialog(null, paymentPrinter.printPlainTextInHtml());
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null, paymentPrinter.printPlainText());
+                    break;
+            }
             semaphore.release();
             paymentFrame.setVisible(false);
             operationsFrame.setVisible(true);
@@ -127,22 +161,26 @@ public class PaymentGUI implements PaymentUI {
 
     @Override
     public void init() {
-        JOptionPane.showMessageDialog(null, "欢迎您使用POS系统！");
+        setState(initState);
+        guiState.handle();
     }
 
     @Override
     public boolean setup() {
-        payment = new Payment(); // 每次处理都新建一个Payment对象
-        operationsFrame.setVisible(true);
+        // 每次处理都新建一个Payment对象
+        payment = new Payment();
+        setState(setupState);
+        guiState.handle();
         return true;
     }
 
     @Override
     public void tackle() {
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        setState(tackleState);
+        guiState.handle();
+    }
+
+    private void setState(GuiState guiState) {
+        this.guiState = guiState;
     }
 }
